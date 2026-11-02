@@ -1,0 +1,302 @@
+/* ==========================================================================
+   Cinematic Dusk Skyline & Atmospheric Backdrop
+   Parallax inputs via --mx / --my (-1..1)
+   ========================================================================== */
+
+.dusk-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  background: radial-gradient(circle at 62% 65%, #ffb169 0%, #eb5b56 26%, #792a6c 52%, #2d144d 78%, #140929 100%);
+}
+
+.sky-gradient-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(16, 7, 34, 0.72) 0%, rgba(54, 21, 88, 0.35) 45%, rgba(240, 102, 85, 0.25) 75%, rgba(255, 182, 98, 0.45) 100%);
+  mix-blend-mode: overlay;
+}
+
+/* Sunset Sun with multi-tier corona */
+.sun-container {
+  position: absolute;
+  left: 56%;
+  bottom: 22%;
+  width: clamp(240px, 32vw, 540px);
+  aspect-ratio: 1;
+  transform: translate3d(calc(var(--mx, 0) * -10px), calc(var(--my, 0) * -6px), 0);
+  pointer-events: none;
+}
+
+.landing-sun {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 48%, #fffbed 0%, #ffe494 32%, #ffaa54 62%, #ff6252 86%, #cf2d5b 100%);
+  box-shadow:
+    0 0 70px 20px rgba(255, 186, 92, 0.8),
+    0 0 160px 60px rgba(244, 94, 80, 0.45),
+    0 0 280px 100px rgba(138, 38, 98, 0.3);
+  animation: sun-rise 2.8s cubic-bezier(0.18, 0.89, 0.32, 1.05) both;
+}
+
+.sun-glow-ring {
+  position: absolute;
+  inset: -15%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 230, 160, 0.28) 40%, rgba(255, 120, 70, 0.15) 70%, transparent 85%);
+  filter: blur(24px);
+}
+
+.is-loading .sun-container {
+  animation: sun-set 24s linear forwards;
+}
+
+/* Twilight dust / subtle star specks in upper sky */
+.twilight-particles {
+  position: absolute;
+  inset: 0 0 50% 0;
+  background-image: 
+    radial-gradient(1px 1px at 15% 18%, rgba(255, 255, 255, 0.85) 50%, transparent),
+    radial-gradient(1.5px 1.5px at 32% 12%, rgba(255, 235, 180, 0.9) 50%, transparent),
+    radial-gradient(1px 1px at 48% 22%, rgba(255, 255, 255, 0.6) 50%, transparent),
+    radial-gradient(2px 2px at 78% 14%, rgba(255, 240, 200, 0.85) 50%, transparent),
+    radial-gradient(1px 1px at 89% 25%, rgba(255, 255, 255, 0.7) 50%, transparent),
+    radial-gradient(1.5px 1.5px at 94% 10%, rgba(255, 220, 180, 0.75) 50%, transparent);
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+/* Skyline Layers with atmospheric perspective */
+.layer {
+  position: absolute;
+  bottom: -2px;
+  left: -8%;
+  width: 116%;
+  will-change: transform;
+}
+
+.layer rect,
+.layer polygon {
+  fill: currentColor;
+}
+
+/* Layer: Ultra-distant haze towers */
+.layer-haze {
+  height: 28vh;
+  color: #833979;
+  opacity: 0.42;
+  transform: translate3d(calc(var(--mx, 0) * -3px), calc(var(--my, 0) * -1px), 0);
+}
+
+/* Layer: Far skyline */
+.layer-far {
+  height: 38vh;
+  color: #552467;
+  opacity: 0.75;
+  transform: translate3d(calc(var(--mx, 0) * -8px), calc(var(--my, 0) * -3px), 0);
+}
+
+/* Layer: Mid skyline */
+.layer-mid {
+  height: 48vh;
+  color: #311449;
+  transform: translate3d(calc(var(--mx, 0) * -16px), calc(var(--my, 0) * -5px), 0);
+}
+
+/* Layer: Foreground prominent towers */
+.layer-near {
+  height: 58vh;
+  color: #170b28;
+  transform: translate3d(calc(var(--mx, 0) * -28px), calc(var(--my, 0) * -7px), 0);
+}
+
+/* Dynamic window illumination colors */
+.lit-window {
+  transition: opacity 0.5s;
+}
+
+.lit-gold {
+  fill: #ffb833;
+  opacity: 0.95;
+  filter: drop-shadow(0 0 2px rgba(255, 184, 51, 0.8));
+}
+
+.lit-warm {
+  fill: #ffdf85;
+  opacity: 0.88;
+}
+
+.lit-cyan {
+  fill: #8ee7ff;
+  opacity: 0.9;
+  filter: drop-shadow(0 0 2px rgba(142, 231, 255, 0.8));
+}
+
+.layer-mid .lit-window {
+  opacity: 0.7;
+}
+
+/* Rooftop aircraft warning beacons */
+.beacon-light {
+  fill: #ff334b;
+  filter: drop-shadow(0 0 4px #ff1a35);
+  animation: beacon-blink 1.8s ease-in-out infinite alternate;
+}
+
+@keyframes beacon-blink {
+  0%, 35% { opacity: 0.2; transform: scale(0.9); }
+  65%, 100% { opacity: 1; transform: scale(1.15); }
+}
+
+/* Horizon atmosphere light hugging the buildings */
+.horizon-glow {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 24vh;
+  height: 18vh;
+  background: radial-gradient(ellipse 70% 50% at 55% 100%, rgba(255, 170, 85, 0.35) 0%, transparent 80%);
+  pointer-events: none;
+}
+
+/* Foreground Palm Trees */
+.palm {
+  position: absolute;
+  bottom: -4vh;
+  height: 76vh;
+  width: auto;
+  will-change: transform;
+}
+
+.palm path {
+  fill: none;
+  stroke: #0a0414;
+  stroke-linecap: round;
+}
+
+.palm-trunk {
+  stroke-width: 10;
+}
+
+.palm-fronds path {
+  stroke-width: 7.5;
+}
+
+.palm-fronds {
+  transform-origin: 120px 140px;
+  animation: frond-sway 8s ease-in-out infinite alternate;
+}
+
+.palm-left {
+  left: -2vw;
+  transform: translate3d(calc(var(--mx, 0) * -40px), 0, 0);
+}
+
+.palm-right {
+  right: -4vw;
+  height: 66vh;
+  transform: scaleX(-1) translate3d(calc(var(--mx, 0) * 32px), 0, 0);
+}
+
+/* Highway Ground Glow & Speeding Light Streaks */
+.road-glow {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 20vh;
+  background: linear-gradient(180deg, transparent 0%, rgba(16, 7, 34, 0.6) 40%, #0d051c 90%);
+}
+
+.streak {
+  position: absolute;
+  bottom: 6vh;
+  width: 180px;
+  height: 4px;
+  border-radius: 4px;
+  opacity: 0.92;
+  animation: streak-run 6s linear infinite;
+}
+
+.streak-red {
+  background: linear-gradient(90deg, transparent, #ff1e42 60%, #ff5270 100%);
+  box-shadow: 0 0 16px #ff1e42, 0 0 30px rgba(255, 30, 66, 0.4);
+}
+
+.streak-white {
+  bottom: 4vh;
+  background: linear-gradient(270deg, transparent, #fff2cf 60%, #ffffff 100%);
+  box-shadow: 0 0 16px #fff2cf, 0 0 30px rgba(255, 242, 207, 0.4);
+  animation-direction: reverse;
+  animation-duration: 5.2s;
+  animation-delay: -2.4s;
+}
+
+.streak-amber {
+  bottom: 2.5vh;
+  width: 140px;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #ffaa2e 70%, #fff1b0 100%);
+  box-shadow: 0 0 14px #ffaa2e;
+  animation-duration: 7.5s;
+  animation-delay: -4s;
+}
+
+/* Cinematic Contrast Scrim */
+.landing-shade {
+  position: absolute;
+  inset: 0;
+  background: 
+    linear-gradient(90deg, rgba(13, 5, 28, 0.88) 0%, rgba(13, 5, 28, 0.58) 45%, rgba(13, 5, 28, 0.18) 75%, transparent 100%),
+    linear-gradient(0deg, rgba(13, 5, 28, 0.95) 0%, rgba(13, 5, 28, 0.4) 35%, transparent 65%);
+}
+
+/* Animations */
+@keyframes sun-rise {
+  from {
+    transform: translate3d(0, 80px, 0) scale(0.92);
+    opacity: 0;
+  }
+  to {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes sun-set {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(0, 40%, 0); }
+}
+
+@keyframes frond-sway {
+  from { transform: rotate(-2.8deg); }
+  to { transform: rotate(2.8deg); }
+}
+
+@keyframes streak-run {
+  from { transform: translateX(-25vw); }
+  to { transform: translateX(125vw); }
+}
+
+@media (max-width: 900px) {
+  .sun-container {
+    left: 45%;
+    bottom: 25%;
+    width: clamp(200px, 45vw, 360px);
+  }
+  .landing-shade {
+    background: 
+      linear-gradient(180deg, rgba(13, 5, 28, 0.75) 0%, rgba(13, 5, 28, 0.4) 40%, rgba(13, 5, 28, 0.92) 80%),
+      linear-gradient(90deg, rgba(13, 5, 28, 0.85) 0%, transparent 100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dusk-backdrop *,
+  .dusk-backdrop {
+    animation: none !important;
+  }
+}
