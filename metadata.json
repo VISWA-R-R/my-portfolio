@@ -1,0 +1,6 @@
+{
+  "name": "Viswa R R | Open City Portfolio",
+  "description": "Explore Viswa R R's portfolio as an interactive 3D city with responsive building tags and direct email contact.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
