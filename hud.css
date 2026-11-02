@@ -1,0 +1,269 @@
+/* ------------------------------------------------------------------ */
+/* In-game HUD theme. Loaded after App.css: it only changes colour,    */
+/* type and surface, so App.css keeps owning layout and breakpoints.   */
+/* ------------------------------------------------------------------ */
+.portfolio { background: var(--ink); font-family: var(--font-ui); color: var(--bone); }
+
+/* Surfaces */
+.intro,
+.mission-hud,
+.tour-guide,
+.speed-hud,
+.vehicle-switch,
+.time-switch,
+.interaction-prompt,
+.pace-button,
+.info-panel:not(.info-fullscreen) {
+  border-color: rgba(246, 239, 228, 0.2);
+  background: rgba(13, 11, 20, 0.8);
+}
+.intro, .mission-hud, .tour-guide, .speed-hud { border-radius: 6px; }
+
+/* Typography */
+.intro h1 { font-family: var(--font-display); font-weight: 400; letter-spacing: 0; color: var(--bone); text-shadow: 3px 3px 0 var(--flamingo); }
+.role-line { color: var(--bone); font-weight: 600; }
+.intro-text, .tour-instructions, .panel-intro { color: rgba(246, 239, 228, 0.82); }
+.character-tag { margin: 0 0 8px; color: var(--accent); font-size: 13px; font-weight: 700; }
+.eyebrow, .panel-kicker, .mission-kicker, .map-label, .tour-guide-toggle small, .quick-visits > span, .speed-unit, .vehicle-switch small, .time-switch small { color: var(--accent); }
+.mission-hud strong { color: var(--accent); font-family: var(--font-display); font-weight: 400; letter-spacing: 0.02em; }
+.mission-hud > span { color: rgba(246, 239, 228, 0.85); }
+.speed-value { font-family: var(--font-display); font-weight: 400; }
+
+/* Radar */
+.minimap { border: 3px solid rgba(246, 239, 228, 0.7); background: radial-gradient(circle, #2a2740 0 68%, #25446e 69% 100%); box-shadow: 0 0 0 4px rgba(13, 11, 20, 0.8), 0 12px 35px rgba(0, 0, 0, 0.45); }
+.map-road { background: #7a7694; }
+.map-route-layer polyline { stroke: var(--accent); filter: drop-shadow(0 0 1.6px var(--accent)); }
+.player-marker { background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+
+/* Accent swaps for the old gold */
+.tour-chevron, .tour-stop-distance, .tour-stop.is-next .tour-stop-number { color: var(--accent); }
+.tour-stop.is-next { background: color-mix(in srgb, var(--accent) 16%, transparent); }
+.tour-stop.is-visited { color: rgba(246, 239, 228, 0.55); }
+.quick-visits button:hover, .quick-visits button.is-active { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--bone); }
+.quick-visits button:focus-visible, .close-button:focus-visible, .contact-links a:focus-visible, .interaction-prompt button:focus-visible, .mobile-controls button:focus-visible, .vehicle-switch:focus-visible, .time-switch:focus-visible { outline-color: var(--accent); }
+.pace-button.is-active { border-color: var(--accent); background: var(--accent); color: var(--ink); box-shadow: 0 0 14px color-mix(in srgb, var(--accent) 40%, transparent); }
+.interaction-prompt button { border-radius: 3px; background: var(--accent); color: var(--ink); }
+.vehicle-switch:hover, .time-switch:hover { border-color: var(--accent); background: rgba(34, 24, 56, 0.92); }
+
+/* Switch dock: vehicle, time of day and calm mode sit side by side so they never overlap. */
+.switch-dock { position: absolute; right: 166px; bottom: 68px; z-index: 2; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; max-width: calc(100vw - 32px); }
+.switch-dock > button { position: static; display: grid; gap: 3px; min-width: 96px; padding: 9px 12px; border: 1px solid rgba(246, 239, 228, 0.2); border-radius: 6px; background: rgba(13, 11, 20, 0.8); color: var(--bone); text-align: left; cursor: pointer; backdrop-filter: blur(12px); }
+.switch-dock > button span { font-size: 12px; font-weight: 700; white-space: nowrap; }
+.switch-dock > button small { color: var(--accent); font-size: 8px; font-weight: 700; letter-spacing: 0.1em; white-space: nowrap; }
+.switch-dock > button:hover { border-color: var(--accent); background: rgba(34, 24, 56, 0.92); }
+.switch-dock > button:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.switch-dock > .calm-switch[aria-pressed="true"] { border-color: var(--accent); }
+.tour-guide-toggle small .city-rating { margin-left: 6px; letter-spacing: 2px; }
+.quick-visits .ride-quick { border-color: color-mix(in srgb, var(--accent) 60%, transparent); color: var(--accent); }
+
+/* Auto tour controls stay in the HUD layer and remain usable on narrow screens. */
+.auto-tour-panel { position: absolute; right: 18px; bottom: 176px; z-index: 5; display: grid; gap: 8px; width: min(310px, calc(100vw - 36px)); padding: 12px; border: 1px solid rgba(246,239,228,.24); border-radius: 8px; background: rgba(13,11,20,.92); box-shadow: 0 12px 32px rgba(0,0,0,.35); backdrop-filter: blur(12px); }
+.auto-tour-panel.is-active { border-color: var(--accent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent), 0 12px 32px rgba(0,0,0,.35); }
+.auto-tour-heading { display: grid; gap: 4px; }
+.auto-tour-heading > span { color: var(--accent); font-size: 9px; font-weight: 850; letter-spacing: .12em; }
+.auto-tour-heading > strong { font-family: var(--font-display); font-size: 15px; font-weight: 400; }
+.auto-tour-panel p { margin: 0; color: rgba(246,239,228,.82); font-size: 11px; line-height: 1.4; }
+.auto-tour-actions { display: flex; flex-wrap: wrap; align-items: end; gap: 6px; }
+.auto-tour-actions label { display: grid; gap: 3px; color: var(--accent); font-size: 9px; font-weight: 800; text-transform: uppercase; }
+.auto-tour-actions select, .auto-tour-actions button { min-height: 32px; padding: 6px 9px; border: 1px solid rgba(246,239,228,.28); border-radius: 5px; background: #17141f; color: var(--bone); font: inherit; font-size: 10px; font-weight: 800; cursor: pointer; }
+.auto-tour-actions button:first-of-type { border-color: var(--accent); background: var(--accent); color: var(--ink); }
+.auto-tour-actions button:hover, .auto-tour-actions select:hover { border-color: var(--accent); }
+.auto-tour-actions button:focus-visible, .auto-tour-actions select:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.auto-tour-actions button:disabled, .vehicle-switch:disabled { cursor: not-allowed; opacity: .55; }
+
+/* Yacht ride controls */
+.ride-panel { position: absolute; bottom: 132px; left: 50%; z-index: 4; display: grid; gap: 10px; width: min(420px, calc(100vw - 24px)); padding: 12px 14px; border: 1px solid rgba(246, 239, 228, 0.24); border-radius: 6px; background: rgba(13, 11, 20, 0.9); transform: translateX(-50%); backdrop-filter: blur(12px); }
+.ride-status { display: grid; gap: 2px; }
+.ride-status strong { color: var(--accent); font-family: var(--font-display); font-size: 15px; font-weight: 400; }
+.ride-status span { font-size: 14px; line-height: 1.35; }
+.ride-buttons { display: flex; gap: 8px; }
+.ride-buttons button { flex: 1; padding: 10px 14px; border: 2px solid var(--accent); border-radius: 4px; background: var(--accent); color: var(--ink); font-family: var(--font-display); font-size: 13px; cursor: pointer; }
+.ride-buttons button.stop { background: transparent; color: var(--bone); border-color: rgba(246, 239, 228, 0.5); }
+.ride-buttons button:focus-visible { outline: 3px solid var(--bone); outline-offset: 2px; }
+
+/* Contact form & direct delivery */
+.contact-form-container { width: 100%; margin-top: 24px; padding-top: 22px; border-top: 1px solid rgba(246, 239, 228, 0.2); }
+.contact-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.form-heading-row { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 4px; }
+.form-heading-row h3 { margin: 0; font-family: var(--font-display); font-size: clamp(20px, 2.4vw, 30px); font-weight: 400; color: var(--bone); }
+.destination-badge { padding: 4px 10px; border-radius: 9999px; background: rgba(232, 185, 35, 0.15); border: 1px solid var(--accent); color: var(--accent); font-size: 12px; font-weight: 700; font-family: monospace; }
+.contact-form label { display: grid; gap: 6px; font-size: 14px; font-weight: 600; color: rgba(246, 239, 228, 0.9); }
+.contact-form label .req { color: #ff6b81; }
+.contact-form .wide { grid-column: 1 / -1; }
+.contact-form input, .contact-form textarea { width: 100%; padding: 12px 14px; border: 1px solid rgba(246, 239, 228, 0.35); border-radius: 6px; background: rgba(13, 11, 20, 0.6); color: var(--bone); font: inherit; font-size: 15px; transition: border-color 0.2s, outline 0.2s; }
+.contact-form input:focus-visible, .contact-form textarea:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.contact-form label.has-error input, .contact-form label.has-error textarea { border-color: #ff526c; background: rgba(255, 82, 108, 0.08); }
+.field-error { color: #ff6b81; font-size: 12px; font-weight: 600; margin-top: 2px; }
+
+.form-error-banner {
+  grid-column: 1 / -1;
+  padding: 14px 16px;
+  border-radius: 8px;
+  background: rgba(255, 82, 108, 0.14);
+  border: 1px solid #ff526c;
+  color: var(--bone);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: panel-in 0.25s ease both;
+}
+.error-header { display: flex; align-items: center; gap: 8px; color: #ff8598; font-size: 15px; }
+.error-text { margin: 0; font-size: 14px; line-height: 1.45; }
+.config-help-box { padding: 10px 12px; border-radius: 6px; background: rgba(0, 0, 0, 0.35); border: 1px dashed rgba(246, 239, 228, 0.25); font-size: 13px; line-height: 1.4; }
+.config-help-box p { margin: 4px 0; }
+.config-help-box code { color: var(--accent); background: rgba(232, 185, 35, 0.15); padding: 2px 5px; border-radius: 4px; font-size: 12px; }
+.keep-note { margin: 0; font-size: 13px; color: #7fe3ad; }
+.btn-copy-draft { align-self: flex-start; padding: 6px 12px; border-radius: 4px; border: 1px solid rgba(246, 239, 228, 0.35); background: transparent; color: var(--bone); font-size: 12px; cursor: pointer; }
+
+.form-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-top: 8px; }
+.btn-submit-contact {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 26px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--accent);
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.2s;
+}
+.btn-submit-contact:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.08); }
+.btn-submit-contact:disabled { opacity: 0.65; cursor: not-allowed; }
+.btn-submit-contact:focus-visible { outline: 3px solid var(--bone); outline-offset: 3px; }
+.target-reminder { font-size: 13px; color: rgba(246, 239, 228, 0.7); }
+.target-reminder strong { color: var(--bone); font-weight: 600; }
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(13, 11, 20, 0.3);
+  border-top-color: var(--ink);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.contact-success-card {
+  padding: 32px 24px;
+  border-radius: 12px;
+  background: rgba(127, 227, 173, 0.12);
+  border: 1px solid #7fe3ad;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  animation: panel-in 0.35s ease both;
+}
+.success-icon {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: #7fe3ad;
+  color: #0b1a13;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 20px rgba(127, 227, 173, 0.4);
+}
+.contact-success-card h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(24px, 3vw, 36px);
+  color: #7fe3ad;
+}
+.success-detail { margin: 0; font-size: 16px; line-height: 1.5; color: var(--bone); max-width: 480px; }
+.success-destination {
+  padding: 8px 16px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 14px;
+}
+.dest-label { color: rgba(246, 239, 228, 0.75); }
+.dest-email { color: var(--accent); font-family: monospace; }
+.btn-send-another {
+  margin-top: 8px;
+  padding: 12px 24px;
+  border-radius: 6px;
+  border: 1px solid rgba(246, 239, 228, 0.4);
+  background: transparent;
+  color: var(--bone);
+  font-family: var(--font-display);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-send-another:hover { background: rgba(246, 239, 228, 0.15); border-color: var(--bone); }
+
+/* Full-screen portfolio pages */
+.info-panel.info-fullscreen {
+  background: radial-gradient(ellipse at 82% 8%, color-mix(in srgb, var(--accent) 26%, transparent), transparent 46%), linear-gradient(160deg, #1a0d30 0%, #2a1648 56%, #0d0b14 100%);
+  animation: panel-in 0.38s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.info-fullscreen .panel-kicker, .skills-fullscreen .panel-kicker { color: var(--accent); }
+.info-fullscreen h2 { font-family: var(--font-display); font-weight: 400; letter-spacing: 0; color: var(--bone); text-shadow: 4px 4px 0 var(--flamingo); }
+.info-fullscreen .panel-intro { color: rgba(246, 239, 228, 0.86); }
+.info-panel li, .info-fullscreen li { color: rgba(246, 239, 228, 0.92); }
+.info-panel li::marker { color: var(--accent); }
+.skill-card { border-color: rgba(246, 239, 228, 0.18); border-radius: 6px; background: rgba(13, 11, 20, 0.5); box-shadow: 0 18px 38px rgba(0, 0, 0, 0.25); }
+.skill-card > span { color: var(--accent); }
+.skill-card p { color: var(--bone); }
+.contact-links a, .repo-links a { border-radius: 6px; color: var(--bone); }
+.contact-links a { border-color: rgba(246, 239, 228, 0.24); }
+.contact-links a:hover { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--bone); }
+.repo-links { display: grid; gap: 10px; padding-left: 0 !important; list-style: none; }
+.repo-links li { margin: 0; }
+.repo-links a { display: block; padding: 12px 14px; border: 1px solid rgba(246, 239, 228, 0.24); font-weight: 700; text-decoration: none; }
+.repo-links a:hover { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 18%, transparent); }
+.repo-links a:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.close-button { border-color: rgba(246, 239, 228, 0.35); }
+
+/* Mission passed */
+.mission-passed { position: fixed; top: 50%; right: 0; left: 0; z-index: 60; padding: clamp(22px, 4vh, 40px) 16px; background: linear-gradient(90deg, transparent, rgba(13, 11, 20, 0.86) 16%, rgba(13, 11, 20, 0.86) 84%, transparent); text-align: center; pointer-events: none; transform: translateY(-50%); animation: mp-in 0.7s cubic-bezier(0.2, 1.1, 0.3, 1) both; }
+.mp-title { margin: 0; color: #e8b923; font-family: var(--font-display); font-size: clamp(44px, 9vw, 120px); line-height: 1; text-shadow: 4px 4px 0 #0d0b14; }
+.mp-sub { margin: 10px 0 18px; font-size: clamp(16px, 1.8vw, 24px); font-weight: 600; }
+.mp-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+.mp-actions button { padding: 11px 20px; border: 2px solid var(--accent); border-radius: 4px; background: var(--accent); color: var(--ink); font-family: var(--font-display); font-size: 14px; cursor: pointer; pointer-events: auto; }
+.mp-actions button.ghost { background: transparent; color: var(--bone); border-color: rgba(246, 239, 228, 0.5); }
+.mp-actions button:focus-visible { outline: 3px solid var(--bone); outline-offset: 3px; }
+
+@keyframes panel-in { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: none; } }
+@keyframes mp-in { from { opacity: 0; transform: translateY(-50%) scale(1.15); } to { opacity: 1; transform: translateY(-50%); } }
+
+/* Dock placement per breakpoint (same order as the old vehicle-switch rules in App.css) */
+@media (max-width: 640px) {
+  .switch-dock { top: 170px; right: 12px; bottom: auto; }
+  .switch-dock > button { min-width: 84px; padding: 7px 9px; }
+  .ride-panel { top: 214px; right: 9px; bottom: auto; left: auto; width: min(230px, calc(100vw - 140px)); transform: none; padding: 9px 10px; }
+  .auto-tour-panel { right: 10px; bottom: 118px; width: min(270px, calc(100vw - 20px)); padding: 9px; }
+  .auto-tour-heading > strong { font-size: 13px; }
+  .auto-tour-actions { gap: 4px; }
+  .auto-tour-actions select, .auto-tour-actions button { min-height: 29px; padding: 5px 7px; font-size: 9px; }
+}
+@media (any-pointer: coarse) {
+  .switch-dock { right: 130px; bottom: 112px; }
+}
+@media (any-pointer: coarse) and (max-width: 640px) {
+  .switch-dock { top: 170px; right: 12px; bottom: auto; }
+}
+@media (max-height: 520px) and (orientation: landscape) {
+  .switch-dock { top: auto; right: 128px; bottom: 12px; }
+  .ride-panel { top: auto; bottom: 64px; left: 50%; width: min(380px, 50vw); transform: translateX(-50%); }
+}
+@media (max-width: 640px) {
+  .contact-form { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .info-panel.info-fullscreen, .mission-passed { animation: none; }
+}
+
+/* Short status messages (graphics restored, etc.) */
+.toast { position: fixed; top: 16px; left: 50%; z-index: 120; max-width: min(92vw, 420px); padding: 10px 16px; border: 1px solid rgba(246, 239, 228, 0.3); border-radius: 6px; background: rgba(13, 11, 20, 0.92); color: var(--bone); font-size: 14px; font-weight: 600; transform: translateX(-50%); animation: panel-in 0.3s ease both; }
