@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import nodemailer from 'nodemailer';
-import { validateContactInput, TARGET_PORTFOLIO_EMAIL } from './src/utils/contactValidation.js';
+import { validateContactInput, TARGET_PORTFOLIO_EMAIL } from './utils/contactValidation.js';
 
 dotenv.config();
 
