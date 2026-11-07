@@ -29,11 +29,11 @@ function isRateLimited(ip: string): boolean {
   return false;
 }
 
-function getActiveEmailProvider(): 'resend' | 'smtp' | 'sendgrid' | 'direct' | 'none' {
+function getActiveEmailProvider(): 'resend' | 'smtp' | 'sendgrid' | 'none' {
   if (process.env.RESEND_API_KEY) return 'resend';
   if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) return 'smtp';
   if (process.env.SENDGRID_API_KEY) return 'sendgrid';
-  return 'direct';
+  return 'none';
 }
 
 async function startServer() {
@@ -98,6 +98,13 @@ async function startServer() {
     const clean = validation.cleanData;
     const provider = getActiveEmailProvider();
 
+    if (provider === 'none') {
+      return res.status(503).json({
+        success: false,
+        error: 'Email delivery is not configured on this server. Add RESEND_API_KEY, SMTP credentials, or SENDGRID_API_KEY to the deployment environment.',
+      });
+    }
+
     const emailSubject = `[Portfolio Contact] New message from ${clean.name}`;
     const emailText = `New portfolio contact message for Viswa R R:\n\nSender Name: ${clean.name}\nSender Email: ${clean.email}\n\nMessage:\n${clean.message}\n\nTimestamp: ${new Date().toISOString()}`;
     const emailHtml = `
@@ -143,7 +150,7 @@ async function startServer() {
 
         return res.json({
           success: true,
-          message: `Your message has been delivered directly to ${TARGET_PORTFOLIO_EMAIL}.`,
+          message: `Your message was accepted by the email service for ${TARGET_PORTFOLIO_EMAIL}.`,
           id: resendData.id,
         });
       }
@@ -171,7 +178,7 @@ async function startServer() {
 
         return res.json({
           success: true,
-          message: `Your message has been delivered directly to ${TARGET_PORTFOLIO_EMAIL}.`,
+          message: `Your message was accepted by the email service for ${TARGET_PORTFOLIO_EMAIL}.`,
           id: info.messageId,
         });
       }
@@ -207,51 +214,11 @@ async function startServer() {
 
         return res.json({
           success: true,
-          message: `Your message has been delivered directly to ${TARGET_PORTFOLIO_EMAIL}.`,
+          message: `Your message was accepted by the email service for ${TARGET_PORTFOLIO_EMAIL}.`,
         });
       }
 
-      // Direct delivery to viswaoff03@gmail.com via FormSubmit relay
-      const fsRes = await fetch(`https://formsubmit.co/ajax/${TARGET_PORTFOLIO_EMAIL}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Origin': 'https://viswa-portfolio.dev',
-          'Referer': 'https://viswa-portfolio.dev/',
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        },
-        body: JSON.stringify({
-          name: clean.name,
-          email: clean.email,
-          message: clean.message,
-          _subject: emailSubject,
-          _template: 'table',
-          _captcha: 'false',
-        }),
-      });
-
-      const fsData = await fsRes.json().catch(() => null);
-
-      if (fsRes.ok && (fsData?.success === 'true' || fsData?.success === true)) {
-        return res.json({
-          success: true,
-          message: `Your message has been delivered directly to ${TARGET_PORTFOLIO_EMAIL}.`,
-        });
-      }
-
-      if (fsData?.message && fsData.message.includes('Activation')) {
-        return res.json({
-          success: true,
-          activationNotice: true,
-          message: `Your message has been sent to ${TARGET_PORTFOLIO_EMAIL}! FormSubmit has sent a one-time 'Activate Form' confirmation email to ${TARGET_PORTFOLIO_EMAIL}. Please check your Gmail (including Spam folder) to click Activate once, and all messages will deliver directly to your inbox.`,
-        });
-      }
-
-      return res.status(502).json({
-        success: false,
-        error: fsData?.message || `Failed to deliver email to ${TARGET_PORTFOLIO_EMAIL}. Please check your connection and try again.`,
-      });
+      return res.status(500).json({ success: false, error: 'Email provider configuration is invalid.' });
     } catch (err: any) {
       console.error('Error dispatching contact email:', err);
       return res.status(500).json({
@@ -262,7 +229,7 @@ async function startServer() {
   });
 
   // Serve Vite app in dev or built app in production
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV === 'production' || process.argv.includes('--production')) {
     app.use(express.static(path.join(__dirname, 'dist')));
     app.get('*', (req, res) => {
       res.sendFile(path.join(__dirname, 'dist', 'index.html'));

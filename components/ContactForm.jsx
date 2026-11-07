@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { validateContactInput, TARGET_PORTFOLIO_EMAIL } from "../utils/contactValidation.js";
 
 export default function ContactForm() {
@@ -16,8 +16,9 @@ export default function ContactForm() {
   const [status, setStatus] = useState("idle"); // idle | submitting | success | error
   const [statusMessage, setStatusMessage] = useState("");
   const [errorCode, setErrorCode] = useState("");
-  const [serverConfig, setServerConfig] = useState({ configured: true, provider: "" });
+  const [serverConfig, setServerConfig] = useState({ available: null, configured: null, provider: "", problem: "" });
   const [copied, setCopied] = useState(false);
+  const submissionInProgress = useRef(false);
 
   // Check server contact configuration status on load
   useEffect(() => {
@@ -27,13 +28,17 @@ export default function ContactForm() {
       .then((data) => {
         if (active && data) {
           setServerConfig({
+            available: true,
             configured: Boolean(data.configured),
             provider: data.provider || "",
+            problem: "",
           });
+        } else if (active) {
+          setServerConfig({ available: false, configured: false, provider: "", problem: "not-found" });
         }
       })
       .catch(() => {
-        // If status check fails, proceed normally
+        if (active) setServerConfig({ available: false, configured: false, provider: "", problem: "unreachable" });
       });
     return () => {
       active = false;
@@ -50,6 +55,8 @@ export default function ContactForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (submissionInProgress.current || status === "submitting") return;
+    if (serverConfig.available !== true || serverConfig.configured !== true) return;
 
     // Client-side validation
     const validation = validateContactInput(formData);
@@ -59,84 +66,35 @@ export default function ContactForm() {
     }
 
     setErrors({});
+    submissionInProgress.current = true;
     setStatus("submitting");
     setStatusMessage("");
     setErrorCode("");
 
     try {
-      let sentSuccessfully = false;
-      let responseMsg = "";
-
-      // 1. Try local backend relay first (/api/contact)
-      try {
-        const response = await fetch("/api/contact", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(validation.cleanData),
-        });
-
-        if (response.ok) {
-          const result = await response.json().catch(() => null);
-          if (result?.success) {
-            sentSuccessfully = true;
-            responseMsg = result.message || `Your message has been sent directly to ${TARGET_PORTFOLIO_EMAIL}.`;
-          }
-        }
-      } catch (err) {
-        // Backend not running (e.g. user ran pure vite dev server) - fall through to direct FormSubmit
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(validation.cleanData),
+      });
+      const result = await response.json().catch(() => null);
+      if (!response.ok || !result?.success) {
+        throw new Error(result?.error || `Could not send your message to ${TARGET_PORTFOLIO_EMAIL}. Please try again.`);
       }
 
-      // 2. Direct browser-to-FormSubmit dispatch if backend is not available or returned non-ok
-      if (!sentSuccessfully) {
-        const fsRes = await fetch(`https://formsubmit.co/ajax/${TARGET_PORTFOLIO_EMAIL}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify({
-            name: validation.cleanData.name,
-            email: validation.cleanData.email,
-            message: validation.cleanData.message,
-            _subject: `New Portfolio Message from ${validation.cleanData.name}`,
-            _replyto: validation.cleanData.email,
-            _template: "table",
-            _captcha: "false",
-          }),
-        });
-
-        const fsData = await fsRes.json().catch(() => null);
-
-        if (fsRes.ok && (fsData?.success === "true" || fsData?.success === true)) {
-          sentSuccessfully = true;
-          responseMsg = `Your message has been delivered directly to ${TARGET_PORTFOLIO_EMAIL}!`;
-        } else if (fsData?.message && fsData.message.toLowerCase().includes("activation")) {
-          // One-time activation required by FormSubmit
-          sentSuccessfully = true;
-          responseMsg = `Your message was sent! FormSubmit sent a one-time activation email to ${TARGET_PORTFOLIO_EMAIL}. Please check your inbox (or Spam) and click 'Activate' once to receive all future messages directly.`;
-        } else if (fsData?.message) {
-          throw new Error(fsData.message);
-        } else {
-          throw new Error(`Failed to deliver message to ${TARGET_PORTFOLIO_EMAIL}.`);
-        }
-      }
-
-      if (sentSuccessfully) {
-        setStatus("success");
-        setStatusMessage(responseMsg);
-        // Clear form fields on verified success
-        setFormData({ name: "", email: "", message: "" });
-      }
+      setStatus("success");
+      setStatusMessage(result.message || `Your message has been sent to ${TARGET_PORTFOLIO_EMAIL}.`);
+      setFormData({ name: "", email: "", message: "" });
     } catch (err) {
       // Network or delivery error: strictly preserve entered message
       setStatus("error");
-      setErrorCode("SEND_FAILED");
+      setErrorCode(err.message?.includes("not configured") ? "EMAIL_SERVICE_NOT_CONFIGURED" : "SEND_FAILED");
       setStatusMessage(
         err.message ||
           `Failed to dispatch message directly to ${TARGET_PORTFOLIO_EMAIL}. Your text has been preserved above—please try again.`
       );
+    } finally {
+      submissionInProgress.current = false;
     }
   };
 
@@ -165,10 +123,10 @@ export default function ContactForm() {
               <polyline points="22 4 12 14.01 9 11.01" />
             </svg>
           </div>
-          <h3>Message Delivered!</h3>
+          <h3>Message Accepted</h3>
           <p className="success-detail">{statusMessage}</p>
           <div className="success-destination">
-            <span className="dest-label">Delivered to:</span>
+            <span className="dest-label">Recipient:</span>
             <strong className="dest-email">{TARGET_PORTFOLIO_EMAIL}</strong>
           </div>
           <button type="button" className="btn-send-another" onClick={handleResetForAnother}>
@@ -177,6 +135,18 @@ export default function ContactForm() {
         </div>
       ) : (
         <form className="contact-form direct-send-form" onSubmit={handleSubmit} noValidate>
+          {serverConfig.available === false && (
+            <div className="form-error-banner wide" role="alert">
+              <strong>{serverConfig.problem === "not-found" ? "Contact form endpoint is not deployed." : "Contact form endpoint is unavailable."}</strong>
+              <p className="error-text">{serverConfig.problem === "not-found" ? <>Deploy the project with its <code>api/contact</code> Vercel functions. The current site cannot send email until that endpoint exists.</> : "The site could not reach its contact status endpoint. Check the connection and Vercel deployment before sending."}</p>
+            </div>
+          )}
+          {serverConfig.available && serverConfig.configured === false && (
+            <div className="form-error-banner wide" role="alert">
+              <strong>Email delivery is not configured.</strong>
+              <p className="error-text">On Vercel, add Resend's <code>RESEND_API_KEY</code> and verified <code>EMAIL_FROM</code>, or SMTP's <code>SMTP_HOST</code>, <code>SMTP_PORT</code>, <code>SMTP_SECURE</code>, <code>SMTP_USER</code>, and <code>SMTP_PASS</code> in Project Settings → Environment Variables, then redeploy. For Gmail, an App Password is required; your current Google account says that option is unavailable.</p>
+            </div>
+          )}
           <div className="form-heading-row">
             <h3>Direct Message</h3>
             <span className="destination-badge" title={`Sends directly to ${TARGET_PORTFOLIO_EMAIL}`}>
@@ -270,10 +240,10 @@ export default function ContactForm() {
               {errorCode === "EMAIL_SERVICE_NOT_CONFIGURED" && (
                 <div className="config-help-box">
                   <p>
-                    <strong>Setup required to enable server dispatch:</strong>
+                    <strong>Set up email delivery for this portfolio:</strong>
                   </p>
                   <p>
-                    Add <code>RESEND_API_KEY</code> or your <code>SMTP_HOST</code> credentials to the <code>.env</code> file. The backend will then automatically dispatch emails directly to <code>{TARGET_PORTFOLIO_EMAIL}</code>.
+                    Add <code>RESEND_API_KEY</code>, <code>SENDGRID_API_KEY</code>, or <code>SMTP_HOST</code>, <code>SMTP_USER</code>, and <code>SMTP_PASS</code> to the server environment. Keep these credentials private. The server will then deliver messages to <code>{TARGET_PORTFOLIO_EMAIL}</code>.
                   </p>
                 </div>
               )}
@@ -301,6 +271,12 @@ export default function ContactForm() {
                   <span className="spinner" aria-hidden="true" />
                   <span>Sending to {TARGET_PORTFOLIO_EMAIL}…</span>
                 </>
+              ) : serverConfig.available === false ? (
+                <span>Contact Form Offline</span>
+              ) : serverConfig.available !== true ? (
+                <span>Checking Email Setup…</span>
+              ) : serverConfig.configured === false ? (
+                <span>Email Setup Required</span>
               ) : status === "error" ? (
                 <>
                   <span>Try Sending Again</span>
